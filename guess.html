@@ -1,11 +1,357 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
   <head>
-    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Freshly-Picked Tingle's Haggle Guesser</title>
   </head>
-  <body>
-    <div style="background-color:#FD7;width:500px;height:50px"></div>
+  <style>
+    /*:root{ --lowBar: 0; --hiBar: 100; }*/
+    .sldB{
+      background-color:rgb(255,0,0,0.3);
+      width:10px;
+      height:100px;
+      grid-column:1;
+      grid-row:1;
+      margin-left: calc(0% - 5px);
+      /*animation: a_sldB 2s infinite;*/
+    }
+    /*@keyframes a_sldB {  0% {margin-left: var(--lowBar);} 100% {margin-left: calc(var(--hiBar)% - 5px);}  }*/
+    input{
+      text-align: center;
+      background-color: rgb(255,255,255,0.1);
+    }
+    body{
+      font-family: "Lucida", cursive;
+      text-align:center;
+      user-select:none;
+      -webkit-user-select:none;
+      cursor:default;
+      background-image: linear-gradient(0deg,
+          rgb(100,150,100,1) 0%,
+          rgb(50,150,30,1) 50%,
+          rgb(100,150,100,1) 100%
+      );
+    }
+    #barFrm{
+      display: flex;
+      justify-content: center;
+      width:100%;
+    }
+    #bar0{
+      width:800px;
+      height:100px;
+      display:grid;
+      background-image: linear-gradient(0deg,
+        rgb(0,0,0,0) 30%,
+        rgb(0,50,0,1) 30%,
+        rgb(0,100,30,1) 50%,
+        rgb(0,50,0,1) 70%,
+        rgb(0,0,0,0) 70%
+      );
+    }
+    #slcFrm{
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      height: 120px;
+    }
+    #bgbar{
+      display:grid;
+      justify-content: center;
+      width:700px;
+      height:120px;
+      background-color:rgb(255,255,255,0.3);
+      border-radius: 20px;
+    }
+    .slcBox{
+      width:200px;
+      height:30px;
+      font-size: 20pt;
+      margin: 10px;
+      grid-row: 3;
+    }
+    .slabBox{
+      font-size: 20pt;
+      grid-row: 2;
+      margin-top: 10px;
+    }
+    #listFrm{
+      display: none;
+      justify-content: center;
+      width: 100%;
+      height: 200px;
+    }
+    #listBox{
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      width:700px;
+      height:200px;
+      background-color:rgb(255,255,255,0.3);
+      border-radius: 20px;
+      overflow: scroll;
+    }
+    .lsBox{
+      text-align: left;
+      font-size: 16pt;
+      border: 3px solid #FFF;
+      border-radius: 10px;
+      width:95%;
+      margin: 10px;
+      padding:5px;
+      height:35px;
+    }
+    .lsBox:hover{
+      background-color: rgb(255,255,255,0.2);
+      cursor: pointer;
+    }
+  </style>
+  <body style="">
+    <!--<div style="background-color:#0DF;width:40%;font-size:30pt" id="resBtn" onclick="resetF()">RESET</div>-->
+    <br>
+    <span style="font-size:25pt">Freshly-Picked Tingle's Haggle Guesser</span>
+    <br><br>
+    <div id="slcFrm">
+      <div id="bgbar">
+        <div class="slabBox">Location</div><div class="slabBox">NPC</div><div class="slabBox">Thema</div>
+        <input type="text" class="slcBox" id="txt_loc" maxlength="300" onfocus="txFocF()" onkeyup="txLocF()" style="background-color:#FFF"></input>
+        <input type="text" class="slcBox" id="txt_npc" maxlength="300" onfocus="txFocF()" onkeyup="txNpcF()" disabled></input>
+        <input type="text" class="slcBox" id="txt_req" maxlength="300" onfocus="txFocF()" onkeyup="txReqF()" disabled></input>
+      </div>
+    </div>
+    <br>
+    <div id="listFrm">
+      <div id="listBox"></div>
+    </div>
+    <br>
+    <div id="barFrm">
+      <div id="bar0">
+      </div>
+    </div>
+    <br>
+    <input type="text" style="width:300px;font-size:50pt" id="num" onkeyup="numF(event)" maxlength="6" disabled></input>
+    <br><br>
+    <span id="notif" style="font-size:20pt"></span><br>
+    <span style="font-family:Courier;font-size:8pt;cursor:pointer;color:#009" onclick="alert('Hier wird README noch großgeschrieben!')">README.md</span>
   </body>
   <script>
-    
+
+    let markers = [], mkIx = 1, sol=0;
+    let mkMin=0,mkMax=0;
+
+    let rawJ = `{"Hometown Prairie":{"Guard":[{"req":"Allow entry to Port Town","price":5,"dirc":"Offer"},{"req":"‹‹Welcome››","price":5,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Empty Jar","price":149,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Empty Jar Memory››","price":218,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Oinker Revolt››","price":80,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Empty Jar Day››","price":381,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Special Empty Jar››","price":754,"dirc":"Offer","tag":"Angebot"},{"req":"Reward for curing his wife","price":960,"dirc":"Ask"},{"req":"Reward for helping him defeat the Icy Plain ghost","price":20000,"dirc":"Ask"}],"Chef":[{"req":"Open his kitchen to Tingle","price":10,"dirc":"Offer"},{"req":"‹‹Ingredient Tips››","price":10,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Potato Tips››","price":100,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Ocean soup››","price":3000,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Super Soup››","price":5000,"dirc":"Offer","tag":"Dialog"}],"Armourer":[{"req":"Open his shop to Tingle","price":15,"dirc":"Offer"},{"req":"‹‹Hero Lyphos››","price":20,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Jar For Sale!››","price":50,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Cape Legend››","price":50,"dirc":"Offer","tag":"Dialog"},{"req":"Best haggle price for a Shoddy Knife","price":210,"dirc":"Ask"},{"req":"Best haggle price for a Shoddy Shield","price":210,"dirc":"Ask"},{"req":"Best haggle price for a Shoddy Lance","price":230,"dirc":"Ask"},{"req":"Best haggle price for a Low-Budget Mace.","price":480,"dirc":"Ask"},{"req":"Best haggle price for a Tough Shield","price":520,"dirc":"Ask"},{"req":"Best haggle price for a Shoulder Spikes","price":2900,"dirc":"Ask"},{"req":"Best haggle price for a Destructor Axe","price":3500,"dirc":"Ask"},{"req":"Best haggle price for a Poker Lance","price":3500,"dirc":"Ask"},{"req":"Best haggle price for a 10-Man Slicer","price":8800,"dirc":"Ask"},{"req":"Best haggle price for a 999-Man Slicer","price":15000,"dirc":"Ask"},{"req":"Best haggle price for the Lyphos Sword","price":96000,"dirc":"Ask"}],"Jeweller":[{"req":"Open his shop to Tingle","price":27,"dirc":"Offer"},{"req":"‹‹White Sparkle››","price":25,"dirc":"Offer","tag":"Dialog"},{"req":"Reward for finding his daughter","price":4000,"dirc":"Ask"}],"Bella":[{"req":"Open her café to Tingle","price":36,"dirc":"Offer"},{"req":"‹‹Full of Freshness››","price":35,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Simple Juice››","price":150,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Sweet Fragrance››","price":650,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Full of Elegance››","price":2000,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Last Emperor››","price":5000,"dirc":"Offer","tag":"Dialog"}],"Chiko's Mum":[{"req":"‹‹Fairy››","price":15,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹One Love››","price":300,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Endless Love››","price":1500,"dirc":"Offer","tag":"Dialog"},{"req":"Mend the Worn-Out Rag","price":1750,"dirc":"Offer"},{"req":"‹‹Family History››","price":850,"dirc":"Offer","tag":"Dialog"},{"req":"Reward for returning the Fairy Doll","price":60,"dirc":"Ask"},{"req":"Best haggle price for a Hand-Sewn Robe","price":1750,"dirc":"Ask"},{"req":"Best haggle price for a Magical Hat","price":9800,"dirc":"Ask"},{"req":"Reward for letting Chiko see a real fairy","price":32000,"dirc":"Ask"}],"Waitress":[{"req":"Purchase the medium cooking pot","price":500,"dirc":"Offer"},{"req":"Purchase the huge cooking pot","price":1500,"dirc":"Offer"}],"Hero's Shrine Gate":[{"req":"Allow access to Hero's Shrine","price":50,"dirc":"Offer"}],"Trick Chest (Hero's Shrine)":[{"req":"Contains 200 Rupees","price":50,"dirc":"Offer"}],"Teddy Todo":[{"req":"Employ as bodyguard until the Hero's Shrine is cleared","price":20,"dirc":"Offer"},{"req":"Share for helping in the Hero's Shrine","price":100,"dirc":"Offer"}],"Journalist":[{"req":"‹‹Fountain Legend››","price":185,"dirc":"Offer","tag":"Dialog"}],"Fountain":[{"req":"Revive the fountain fairy","price":20000,"dirc":"Offer"}],"Old Gent":[{"req":"‹‹First Shake››","price":1501,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Second Shake››","price":1625,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Third Shake››","price":1751,"dirc":"Offer","tag":"Dialog"},{"req":"Reward for retrieving all three of Paul's belongings","price":14000,"dirc":"Ask"}],"Tingle's Uncle":[{"req":"Purchase the Staff Roll","price":10000,"dirc":"Offer"}],"Western Pool":[{"req":"Tower Level 1 + Access to Sunshine Seashore","price":650,"dirc":"Offer"},{"req":"Tower Level 2 + Access to Cape Treasure","price":1650,"dirc":"Offer"},{"req":"Tower Level 3 + Access to Lon Lon Meadow","price":5650,"dirc":"Offer"},{"req":"Tower Level 4 + Access to Deku Forest","price":11650,"dirc":"Offer"},{"req":"Tower Level 5 + Access to Steamy Marsh","price":29650,"dirc":"Offer"},{"req":"Tower Level 6 + Access to Gooey Swamp","price":56650,"dirc":"Offer"},{"req":"Tower Level 7 + Access to Icy Plain","price":110650,"dirc":"Offer"},{"req":"Tower Level 8 + Access to Mount Desma","price":191650,"dirc":"Offer"},{"req":"Tower Level 9 + Access to Fairy Garden","price":313150,"dirc":"Offer"},{"req":"Tower Level 10 + Access to Auros Ruins","price":495400,"dirc":"Offer"}]},"Sunshine Seashore":{"Old Gent":[{"req":"Reward for retrieving all three of Paul's belongings","price":14000,"dirc":"Offer"}],"Duke":[{"req":"Bridge repair refund","price":9999,"dirc":"Ask"}],"Judge":[{"req":"Bridge repair refund","price":22222,"dirc":"Ask"}],"Duko":[{"req":"Bridge repair refund","price":55555,"dirc":"Ask"}]},"Cape Treasure":{"Duke":[{"req":"Repair the bridge between Sunshine Seashore and Cape Treasure","price":199,"dirc":"Offer"}],"Salona":[{"req":"Purchase Recipe 9: Treasure Puree (Local Recipe)","price":1200,"dirc":"Offer"}],"Pirate Hideaway Gate":[{"req":"Allow access to Pirate Hideaway","price":500,"dirc":"Offer"}],"Pirate near boat":[{"req":"Explain boat mechanics","price":30,"dirc":"Offer"}],"Pirate in dormitory":[{"req":"Nothing","price":20,"dirc":"Offer"},{"req":"Nothing","price":20,"dirc":"Ask"}]},"Lon Lon Meadow":{"Duke":[{"req":"Purchase shovel","price":750,"dirc":"Offer"},{"req":"Repair the bridge between Cape Treasure and Lon Lon Meadow","price":299,"dirc":"Offer"}]},"Deku Forest":{"Junglo":[{"req":"Bridge the ravine","price":300,"dirc":"Offer"},{"req":"Navigating the Forest Maze (alternatively: up, left, left, up, left, up, right, right, down, right, up, right, up)","price":721,"dirc":"Offer"},{"req":"‹‹Sleepless Nights››","price":850,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Rippling Muscles››","price":900,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Forest Maze››","price":1900,"dirc":"Offer","tag":"Dialog"},{"req":"Reward for escorting him home","price":2000,"dirc":"Ask"},{"req":"Reward for reuniting Aba and the Armourer","price":7800,"dirc":"Ask"}],"Duke":[{"req":"Repair the bridge between Lon Lon Meadow and Deku Forest","price":699,"dirc":"Offer"}],"Great Deku Tree":[{"req":"Open Deku Temple (Rupees are stored in Green Chest in Deku Temple)","price":1,"dirc":"Offer"},{"req":"Reward for healing the Deku Sprout","price":6000,"dirc":"Ask"}],"Deku Temple Gate":[{"req":"Allow access to Deku Temple","price":1500,"dirc":"Offer"}],"Trick Chest (Deku Temple)":[{"req":"Contains 3 Ancient Coins (which sell for 50 each, causing a net loss)","price":200,"dirc":"Offer"}],"Journalist":[{"req":"Reward for giving him Sweet Juice","price":1600,"dirc":"Ask"}]},"Steamy Marsh":{"Queen Bee":[{"req":"Ride to Insect Hive in Gooey Swamp","price":500,"dirc":"Offer"}],"Salona":[{"req":"Purchase an Empty Jar","price":750,"dirc":"Offer"},{"req":"Purchase an Empty Jar","price":750,"dirc":"Ask"}]},"Gooey Swamp":{"Explorer Secretary":[{"req":"Purchase an Empty Jar","price":1000,"dirc":"Offer"}],"Explorer Medic":[{"req":"Recipe #17: Tinglene","price":2000,"dirc":"Offer"}],"Expedition Member with Fan":[{"req":"Information on butterfly locations ('something good')","price":250,"dirc":"Offer"}],"Salona":[{"req":"‹‹UFO››","price":1000,"dirc":"Offer","tag":"Dialog"}],"Judge":[{"req":"Repair bridge to Golden Obelisk","price":1500,"dirc":"Offer"},{"req":"Repair Gooey Swamp-to-Steamy Marsh bridge","price":1222,"dirc":"Offer"}],"Insect Cavern Gate":[{"req":"Allow access to Insect Cavern","price":3000,"dirc":"Offer"}],"Teddy Todo":[{"req":"Share for helping in the Insect Cavern","price":1500,"dirc":"Offer"}],"Journalist":[{"req":"Reward for giving him Queen Juice","price":5000,"dirc":"Ask"}],"Naked Salona":[{"req":"Reward for returning Green Hood","price":8000,"dirc":"Ask"}]},"Icy Plain":{"Judge":[{"req":"Repair Icy Plain-to-Gooey Swamp bridge","price":2222,"dirc":"Offer"}],"Chiko's Grandmother":[{"req":"Revive the fallen Guard.","price":1000,"dirc":"Offer"},{"req":"Revive the fallen Guard.","price":1000,"dirc":"Ask"}]},"Mount Desma":{"Male Yamatami villager":[{"req":"To be greeted (before clearing Desma's Labyrinth)","price":50,"dirc":"Offer"}],"Sleeping Yamatami villager":[{"req":"Listen to snoring (before clearing Desma's Labyrinth)","price":50,"dirc":"Offer"}],"Yamatami elder":[{"req":"Talk about sacred flames (before clearing Desma's Labyrinth)","price":50,"dirc":"Offer"}],"Yamatami bard":[{"req":"Hear a song (before clearing Desma's Labyrinth)","price":200,"dirc":"Offer"}],"Female Yamatami villager":[{"req":"To access Rocky Orb (before clearing Desma's Labyrinth)","price":400,"dirc":"Offer"}],"Yamatami meat merchant":[{"req":"Purchase Minced Meat (before clearing Desma's Labyrinth)","price":150,"dirc":"Offer"},{"req":"Purchase Minced Meat (after clearing Desma's Labyrinth)","price":10,"dirc":"Offer"}],"Yamatami vegetable merchant":[{"req":"Purchase Crisp Tomato (before clearing Desma's Labyrinth)","price":150,"dirc":"Offer"},{"req":"Purchase Crisp Tomato (after clearing Desma's Labyrinth)","price":10,"dirc":"Offer"}],"Yamatami fish merchant":[{"req":"Purchase Love Carp (before clearing Desma's Labyrinth)","price":150,"dirc":"Offer"},{"req":"Purchase Love Carp (after clearing Desma's Labyrinth)","price":10,"dirc":"Offer"}],"Yamatami farmer":[{"req":"To access Super Sweetcorn vines","price":150,"dirc":"Offer"}],"Yamatami herder":[{"req":"To access rabbit pen","price":500,"dirc":"Offer"}],"Yamatami mother":[{"req":"Purchase Recipe 28: Desma Syrup","price":16000,"dirc":"Offer"}],"King":[{"req":"Heal the king","price":7500,"dirc":"Offer"},{"req":"Reward for defeating Fire Monster Dora Dora","price":30000,"dirc":"Ask"},{"req":"Haggle price for 1 Nidorian","price":170,"dirc":"Ask"}],"Desma's Labyrinth Gate":[{"req":"Allow access to Desma's Labyrinth","price":8000,"dirc":"Offer"}],"Journalist":[{"req":"Bring Emperor Juice","price":10000,"dirc":"Ask"}]},"Fairy Garden":{"King":[{"req":"Haggle price for 1 Nidorian","price":170,"dirc":"Offer"}],"Grand Fairy":[{"req":"Reward for restoring her fountain","price":65000,"dirc":"Ask"},{"req":"Return the Make-Up Mirror","price":70000,"dirc":"Ask"}]},"Auros Ruins":{"Grand Fairy":[{"req":"Return the Make-Up Mirror","price":70000,"dirc":"Offer"},{"req":"Return the Make-Up Mirror","price":70000,"dirc":"Ask"}]}}`;
+
+    var jData = JSON.parse(rawJ);
+    console.log(jData);
+    sel_loc="",sel_npc="",sel_req="";
+
+    let tmpNPCs = ["Armorer","Jeweller","Guard","Chiko's Mum","Duke","Salona","Pirate Hideaway Gate","Junglo"];
+
+    let tmpReqs = ['Talk: "Sleepless Nights"','Repair the bridge between Lon Lon Meadow and Deku Forest','Reward for giving him Sweet Juice',
+      'Ride to Insect Hive in Gooey Swamp','Information on butterfly locations ("something good")','Share for helping in the Insect Cavern']
+
+    window.onkeydown = function(e){if(e.key=="Enter" && document.activeElement.id=="num"){
+
+        let nval = document.getElementById("num").value;
+        if(nval==0){addMkF(1);}
+        else if(!isNaN(nval)){addMkF(parseInt(nval));}
+        document.getElementById("num").value = "";
+    }}
+
+    function txFocF(){
+      document.getElementById('listFrm').style.display="flex";
+      document.getElementById("notif").innerHTML = "";
+    }
+
+    function txLocF(){
+      let txval = document.getElementById('txt_loc').value.toUpperCase();
+
+      document.getElementById("bar0").innerHTML = "";
+      document.getElementById('num').value = "";
+      document.getElementById('num').setAttribute("disabled",true);
+      document.getElementById("num").style['background-color'] = "rgb(255,255,255,0.1)";
+
+      document.getElementById('txt_npc').value = "";
+      document.getElementById('txt_npc').setAttribute("disabled",true);
+      document.getElementById("txt_npc").style['background-color'] = "rgb(255,255,255,0.1)";
+
+      document.getElementById('txt_req').value = "";
+      document.getElementById('txt_req').setAttribute("disabled",true);
+      document.getElementById("txt_req").style['background-color'] = "rgb(255,255,255,0.1)";
+
+      document.getElementById('listBox').innerHTML = "<br>";
+      document.getElementById('listBox').scrollTop = 0;
+
+
+      if(txval.length>2){for(key in jData) {
+
+        if(key.toUpperCase().indexOf(txval)>-1){
+            let lsB = document.createElement("div");
+            lsB.id = "loc_"+key;
+            lsB.classList.add("lsBox");
+            lsB.innerHTML = key;
+            document.getElementById('listBox').appendChild(lsB);
+        }
+      }}
+      document.getElementById('listBox').innerHTML += "<br>";
+      let evtApplX = document.getElementById('listBox').children; // Hotfix, weil sich Events in der Schleife nicht direkt zuweisen ließen
+      for(var chl of evtApplX){ if(chl.id.indexOf("loc_")>-1){  chl.onclick = function(e){prepNpcF(e.target.innerHTML);}  } }
+
+    }
+    function prepNpcF(loc){
+      document.getElementById('txt_loc').value = loc;
+      sel_loc = loc;
+      document.getElementById('txt_npc').removeAttribute("disabled");
+      document.getElementById('txt_npc').style["background-color"] = "#FFF";
+      document.getElementById('listBox').innerHTML = "<br>";
+      document.getElementById('listBox').scrollTop = 0;
+    }
+
+    function txNpcF(){
+      let txval = document.getElementById('txt_npc').value.toUpperCase();
+
+      document.getElementById("bar0").innerHTML = "";
+      document.getElementById('num').value = "";
+      document.getElementById('num').setAttribute("disabled",true);
+      document.getElementById("num").style['background-color'] = "rgb(255,255,255,0.1)";
+
+      document.getElementById('listBox').innerHTML = "<br>";
+      document.getElementById('listBox').scrollTop = 0;
+
+      document.getElementById('txt_req').value = "";
+      document.getElementById('txt_req').setAttribute("disabled",true);
+      document.getElementById("txt_req").style['background-color'] = "rgb(255,255,255,0.1)";
+
+      if(txval.length>2){for(key in jData[sel_loc]){
+
+        if(key.toUpperCase().indexOf(txval)>-1){
+            let lsB = document.createElement("div");
+            lsB.id = "npc_"+key;
+            lsB.classList.add("lsBox");
+            lsB.innerHTML = key;
+            document.getElementById('listBox').appendChild(lsB);
+        }
+      }}
+      document.getElementById('listBox').innerHTML += "<br>";
+      let evtApplX = document.getElementById('listBox').children; // Hotfix, weil sich Events in der Schleife nicht direkt zuweisen ließen
+      for(var chl of evtApplX){ if(chl.id.indexOf("npc_")>-1){  chl.onclick = function(e){prepReqF(e.target.innerHTML);}  } }
+    }
+    function prepReqF(npc){
+      document.getElementById('txt_npc').value = npc;
+      sel_npc = npc;
+      document.getElementById('txt_req').removeAttribute("disabled");
+      document.getElementById('txt_req').style["background-color"] = "#FFF";
+      document.getElementById('listBox').innerHTML = "<br>";
+      document.getElementById('listBox').scrollTop = 0;
+    }
+
+    function txReqF(){
+      let txval = document.getElementById('txt_req').value.toUpperCase();
+
+      document.getElementById("bar0").innerHTML = "";
+      document.getElementById('num').value = "";
+      document.getElementById('num').setAttribute("disabled",true);
+      document.getElementById("num").style['background-color'] = "rgb(255,255,255,0.1)";
+
+      document.getElementById('listBox').innerHTML = "<br>";
+      document.getElementById('listBox').scrollTop = 0;
+
+      let npc_tasks = jData[sel_loc][sel_npc].length;
+      if(txval.length>2){for(var key=0;key<npc_tasks;key++){
+
+        let sel_task = jData[sel_loc][sel_npc][key];
+
+        if(sel_task.req.toUpperCase().indexOf(txval)>-1){
+            let lsB = document.createElement("div");
+            lsB.id = "req_"+sel_npc+"_"+key;
+            lsB.classList.add("lsBox");
+            lsB.style['border-color'] = sel_task.dirc=="Offer" ? "#C00" : "#00C";
+            lsB.innerHTML = sel_task.req;
+            document.getElementById('listBox').appendChild(lsB);
+        }
+      }}
+      document.getElementById('listBox').innerHTML += "<br>";
+      let evtApplX = document.getElementById('listBox').children; // Hotfix, weil sich Events in der Schleife nicht direkt zuweisen ließen
+      for(var chl of evtApplX){ if(chl.id.indexOf("req_")>-1){  chl.onclick = function(e){prepGuessF(e.target.innerHTML);}  } }
+    }
+    function prepGuessF(req){
+      document.getElementById('txt_req').value = req;
+      sel_req = req;
+      let sel_task = jData[sel_loc][sel_npc];
+      for(var i=0;i<sel_task.length;i++) if(req==sel_task[i].req) sol = sel_task[i].price;
+      document.getElementById('listBox').innerHTML = "<br>";
+      document.getElementById('listBox').scrollTop = 0;
+      resetF();
+    }
+
+    function resetF(){
+      document.getElementById("listFrm").style.display = "none";
+      document.getElementById("bar0").innerHTML = "";
+      document.getElementById("notif").innerHTML = "Starte mit [ENTER] einen Versuch!<br>Bisher 0 Versuche!";
+
+      let rup = document.createElement("div");
+      rup.id = "mk0";
+      rup.classList.add("sldB");
+      rup.style['margin-left'] = "calc(50% - 5px)";
+      rup.innerHTML = "X";
+      rup.value = sol;
+      document.getElementById("bar0").appendChild(rup);
+
+      markers = [sol];
+      mkIx = 1;
+      document.getElementById("num").removeAttribute("disabled");
+      document.getElementById("num").style['background-color'] = "#FFF";
+    }
+
+    function addMkF(val){
+      if(sol==val){
+        document.getElementById("mk0").style['background-color'] = "rgb(255,200,30,0.3)";
+        window.alert("I WON!");
+      }else{
+        markers.push(val);
+
+
+        let mkV = document.createElement("div");
+        mkV.id = "mk"+mkIx; mkIx++;
+        mkV.classList.add("sldB");
+        mkV.style['margin-left'] = `calc(0% - 5px)`;
+        mkV.innerHTML = val;
+        mkV.value = val;
+        document.getElementById("bar0").appendChild(mkV);
+
+        document.getElementById("notif").innerHTML = `Starte mit [ENTER] einen Versuch!<br>Bisher ${mkIx-1} Versuch(e)!`;
+        updLocF();
+
+      }
+    }
+    function updLocF(){
+
+      mkMin = Math.log(Math.min.apply(Math,markers));
+      mkMax = Math.log(Math.max.apply(Math,markers));
+
+      let barCol = document.getElementById("bar0").children;
+
+      for(var mk of barCol){
+
+        let relPos = mk.value==0 ? 0: (Math.log(mk.value)-mkMin)/(mkMax-mkMin);
+        if(mkMin==mkMax) relPos = 50;
+        document.getElementById(mk.id).style['margin-left'] = `calc(${800*relPos-5}px)`;// `calc(${relPos}% - ${5}px)`;
+        //document.documentElement.style.setProperty('--lowBar',mk.style['margin-left']);
+        //document.documentElement.style.setProperty('--hiBar',`${relPos}`);
+        //console.log(relPos,mk,mkMax,mkMin);
+      }
+
+
+    }
+
+    function numF(e){
+      let nval = document.getElementById('num').value;
+      if(isNaN(parseInt(nval)) || nval=="NaN" || nval==NaN || nval==""){  document.getElementById('num').value = "";  }
+      else{
+        document.getElementById('num').value = parseInt(nval);
+        if(!isNaN(parseInt(nval))) if(parseInt(nval)<0) document.getElementById('num').value = Math.abs(nval);
+      }
+    }
+
   </script>
 </html>
