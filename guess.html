@@ -5,14 +5,21 @@
     <title>Freshly-Picked Tingle's Haggle Guesser</title>
   </head>
   <style>
+    .pximg{
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+    }
     /*:root{ --lowBar: 0; --hiBar: 100; }*/
     .sldB{
-      background-color:rgb(255,0,0,0.3);
-      width:10px;
+      background-color:rgb(0,50,0,1);
+      width:16px;
       height:100px;
+      color:#FFF;
+      border: 2px solid #020;
+      border-radius: 8px;
       grid-column:1;
       grid-row:1;
-      margin-left: calc(0% - 5px);
+      margin-left: calc(0% - 8px);
       /*animation: a_sldB 2s infinite;*/
     }
     /*@keyframes a_sldB {  0% {margin-left: var(--lowBar);} 100% {margin-left: calc(var(--hiBar)% - 5px);}  }*/
@@ -44,11 +51,11 @@
       height:100px;
       display:grid;
       background-image: linear-gradient(0deg,
-        rgb(0,0,0,0) 30%,
-        rgb(0,50,0,1) 30%,
+        rgb(0,0,0,0) 40%,
+        rgb(0,50,0,1) 40%,
         rgb(0,100,30,1) 50%,
-        rgb(0,50,0,1) 70%,
-        rgb(0,0,0,0) 70%
+        rgb(0,50,0,1) 60%,
+        rgb(0,0,0,0) 60%
       );
     }
     #slcFrm{
@@ -136,9 +143,12 @@
       <div id="listBox"></div>
     </div>
     <br>
+
     <div id="barFrm">
+      <img src="https://cdn.wikimg.net/en/zeldawiki/images/c/c8/FS_Green_Rupee_Sprite.png" class="pximg" style="width:15px;height:30px;margin-top:35px;margin-right:20px">
       <div id="bar0">
       </div>
+      <img src="https://cdn.wikimg.net/en/zeldawiki/images/0/00/TMC_Big_Green_Rupee_Sprite.png" class="pximg" style="width:25px;height:30px;margin-top:35px;margin-left:20px">
     </div>
     <br>
     <span id="rubyDir" style="font-size:20pt"></span>
@@ -150,6 +160,8 @@
     <span style="font-family:Courier;font-size:8pt;cursor:pointer;color:#009" onclick="alert('Hier wird README noch großgeschrieben!')">README.md</span>
   </body>
   <script>
+
+    function removeChild(node){node.parentNode.removeChild(node);}
 
     let markers = [], mkIx = 1, sol=0;
     let mkMin=0,mkMax=0;
@@ -313,9 +325,15 @@
       let rup = document.createElement("div");
       rup.id = "mk0";
       rup.classList.add("sldB");
-      rup.style['margin-left'] = "calc(50% - 5px)";
-      rup.innerHTML = "X";
+      rup.style['margin-left'] = "calc(50% - 8px)";
+      //rup.innerHTML = "?";
       rup.value = sol;
+      let rupImg = document.createElement("img");
+      rupImg.src = "https://cdn.wikimg.net/en/zeldawiki/images/8/85/FPTRR_DS_Game_Icon.png";
+      rupImg.style.width = "32px";
+      rupImg.style['margin-left'] = "-8px";
+      //rupImg.height = "16px";
+      rup.appendChild(rupImg);
       document.getElementById("bar0").appendChild(rup);
 
       markers = [sol];
@@ -325,20 +343,30 @@
 
     function addMkF(val){
       if(sol==val){
-        document.getElementById("mk0").style['background-color'] = "rgb(255,200,30,0.3)";
-        window.alert("I WON!");
+        document.getElementById("mk0").style['background-color'] = "rgb(255,200,30,1)";
+        //window.alert("I WON!");
+        document.getElementById("notif").innerHTML = `RICHTIG! Es sind ${sol} Rubine!`
       }else{
         markers.push(val);
 
+        let digs = val.toString().length;
 
         let mkV = document.createElement("div");
         mkV.id = "mk"+mkIx; mkIx++;
         mkV.classList.add("sldB");
+        mkV.style.height = "70px";
         mkV.style['margin-left'] = `calc(0% - 5px)`;
+        mkV.style['margin-top'] = "15px";
+        mkV.style['writing-mode'] = "vertical-lr";
+        mkV.style['font-size'] = "8pt";
         mkV.innerHTML = val;
         mkV.title = val;
         mkV.value = val;
         document.getElementById("bar0").appendChild(mkV);
+
+        let tmpMK0 = document.getElementById("mk0");
+        removeChild(document.getElementById("mk0"));
+        document.getElementById("bar0").appendChild(tmpMK0);
 
         document.getElementById("notif").innerHTML = `Bisher ${mkIx-1} Versuch(e)!`;
         updLocF();
@@ -356,7 +384,7 @@
 
         let relPos = mk.value==0 ? 0: (Math.log(mk.value)-mkMin)/(mkMax-mkMin);
         if(mkMin==mkMax) relPos = 50;
-        document.getElementById(mk.id).style['margin-left'] = `calc(${800*relPos-5}px)`;// `calc(${relPos}% - ${5}px)`;
+        document.getElementById(mk.id).style['margin-left'] = `calc(${800*relPos-8}px)`;// `calc(${relPos}% - ${5}px)`;
         //document.documentElement.style.setProperty('--lowBar',mk.style['margin-left']);
         //document.documentElement.style.setProperty('--hiBar',`${relPos}`);
         //console.log(relPos,mk,mkMax,mkMin);
