@@ -18,6 +18,8 @@
     /*@keyframes a_sldB {  0% {margin-left: var(--lowBar);} 100% {margin-left: calc(var(--hiBar)% - 5px);}  }*/
     input{
       text-align: center;
+    }
+    input:disabled{
       background-color: rgb(255,255,255,0.1);
     }
     body{
@@ -105,11 +107,21 @@
       background-color: rgb(255,255,255,0.2);
       cursor: pointer;
     }
+    #spoil{
+      background-color: #000;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    #spoil:hover{
+      background-color: rgb(0,0,0,0);
+    }
   </style>
   <body style="">
     <!--<div style="background-color:#0DF;width:40%;font-size:30pt" id="resBtn" onclick="resetF()">RESET</div>-->
     <br>
-    <span style="font-size:25pt">Freshly-Picked Tingle's Haggle Guesser</span>
+    <img src="https://cdn.wikimg.net/en/zeldawiki/images/1/1d/TRR_Tingle_2.png" style="width:30px">
+    <span style="font-size:25pt;font-weight:bold">Freshly-Picked Tingle's Haggle Guesser</span>
+    <img src="https://cdn.wikimg.net/en/zeldawiki/images/6/65/Tingle_2_TLBT.png" style="width:30px">
     <br><br>
     <div id="slcFrm">
       <div id="bgbar">
@@ -129,9 +141,12 @@
       </div>
     </div>
     <br>
-    <input type="text" style="width:300px;font-size:50pt" id="num" onkeyup="numF(event)" maxlength="6" disabled></input>
-    <br><br>
-    <span id="notif" style="font-size:20pt"></span><br>
+    <span id="rubyDir" style="font-size:20pt"></span>
+    <input type="text" style="width:300px;font-size:50pt;margin-top:10px;margin-bottom:10px;" id="num" onkeyup="numF(event)" maxlength="6" disabled></input>
+    <br>
+    <span id="notif" style="font-size:20pt"></span>
+    <br>
+    <div id="splFrm" style="font-size:14pt;display:none">Spoiler: <span id="spoil">spoilerspoilerspoiler</span></div>
     <span style="font-family:Courier;font-size:8pt;cursor:pointer;color:#009" onclick="alert('Hier wird README noch großgeschrieben!')">README.md</span>
   </body>
   <script>
@@ -139,11 +154,16 @@
     let markers = [], mkIx = 1, sol=0;
     let mkMin=0,mkMax=0;
 
-    let rawJ = `{"Nahebene":{"Torwächter":[{"req":"Durchgang zur Hafenstadt","price":5,"dirc":"Offer"},{"req":"‹‹Willkommen››","price":5,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Leere Flasche››","price":149,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Leere Flasche Erinnerung››","price":218,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Oinker Revolt››","price":80,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Leere Flasche Tag››","price":381,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Besondere leere Flasche››","price":754,"dirc":"Offer","tag":"Angebot"},{"req":"Belohnung: Die Frau des Torwächters heilen","price":960,"dirc":"Ask"},{"req":"Belohnung: Hilfe dabei, den Geist vom Frost-Schneefeld zu besiegen","price":20000,"dirc":"Ask"}],"Chefkoch":[{"req":"Seine Küche für Tingle öffnen","price":10,"dirc":"Offer"},{"req":"‹‹Ingredient Tips››","price":10,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Potato Tips››","price":100,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Ocean soup››","price":3000,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Super Soup››","price":5000,"dirc":"Offer","tag":"Dialog"}],"Krämer":[{"req":"Seinen Laden für Tingle öffnen","price":15,"dirc":"Offer"},{"req":"‹‹Hero Lyphos››","price":20,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Flasche zu verkaufen!››","price":50,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Cape Legend››","price":50,"dirc":"Offer","tag":"Dialog"},{"req":"Feilschen um a Shoddy Knife","price":210,"dirc":"Ask"},{"req":"Feilschen um a Shoddy Shield","price":210,"dirc":"Ask"},{"req":"Feilschen um a Shoddy Lance","price":230,"dirc":"Ask"},{"req":"Feilschen um a Low-Budget Mace.","price":480,"dirc":"Ask"},{"req":"Feilschen um a Tough Shield","price":520,"dirc":"Ask"},{"req":"Feilschen um a Shoulder Spikes","price":2900,"dirc":"Ask"},{"req":"Feilschen um a Destructor Axe","price":3500,"dirc":"Ask"},{"req":"Feilschen um a Poker Lance","price":3500,"dirc":"Ask"},{"req":"Feilschen um a 10-Man Slicer","price":8800,"dirc":"Ask"},{"req":"Feilschen um a 999-Man Slicer","price":15000,"dirc":"Ask"},{"req":"Feilschen um the Lyphos Sword","price":96000,"dirc":"Ask"}],"Juwelier":[{"req":"Seinen Laden für Tingle öffnen","price":27,"dirc":"Offer"},{"req":"‹‹White Sparkle››","price":25,"dirc":"Offer","tag":"Dialog"},{"req":"Belohnung: Seine Tochter finden","price":4000,"dirc":"Ask"}],"Bella":[{"req":"Ihr Café für Tingle öffnen","price":36,"dirc":"Offer"},{"req":"‹‹Full of Freshness››","price":35,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Simple Juice››","price":150,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Sweet Fragrance››","price":650,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Full of Elegance››","price":2000,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Last Emperor››","price":5000,"dirc":"Offer","tag":"Dialog"}],"Chikos Mama":[{"req":"‹‹Fairy››","price":15,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹One Love››","price":300,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Endless Love››","price":1500,"dirc":"Offer","tag":"Dialog"},{"req":"Mend the Worn-Out Rag","price":1750,"dirc":"Offer"},{"req":"‹‹Family History››","price":850,"dirc":"Offer","tag":"Dialog"},{"req":"Belohnung: Die Feenpuppe zurückbringen","price":60,"dirc":"Ask"},{"req":"Feilschen um a Hand-Sewn Robe","price":1750,"dirc":"Ask"},{"req":"Feilschen um a Magical Hat","price":9800,"dirc":"Ask"},{"req":"Belohnung: letting Chiko see a real fairy","price":32000,"dirc":"Ask"}],"Waitress":[{"req":"Den mittleren Kochtopf kaufen","price":500,"dirc":"Offer"},{"req":"Den großen Kochtopf kaufen","price":1500,"dirc":"Offer"}],"Tor zum Heldenschrein":[{"req":"Zugang zum Heldenschrein","price":50,"dirc":"Offer"}],"Mimikrikiste (Heldenschrein)":[{"req":"Kiste öffnen","price":50,"dirc":"Offer","misc":"Gibt 200 Rubine"}],"Teddy Todo":[{"req":"Bis zum Ende des Heldenschreins als Leibwächter engagieren","price":20,"dirc":"Offer"},{"req":"Bezahlung für die Hilfe im Heldenschrein","price":100,"dirc":"Offer"}],"Journalist":[{"req":"‹‹Legende des Brunnens››","price":185,"dirc":"Offer","tag":"Dialog"}],"Springbrunnen":[{"req":"Belebe die Fee im Springbrunnen wieder","price":20000,"dirc":"Offer"}],"Old Gent":[{"req":"‹‹First Shake››","price":1501,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Second Shake››","price":1625,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Third Shake››","price":1751,"dirc":"Offer","tag":"Dialog"},{"req":"Belohnung: retrieving all three of Paul's belongings","price":14000,"dirc":"Ask"}],"Tingles Onkel":[{"req":"Die Credits kaufen","price":10000,"dirc":"Offer"}],"Westliche Quelle":[{"req":"Turm Level 1 + Zugang zur Hamakko-Küste","price":650,"dirc":"Offer"},{"req":"Turm Level 2 + Zugang zum Schatz-Kap","price":1650,"dirc":"Offer"},{"req":"Turm Level 3 + Zugang zur Lon-Lon-Savanne","price":5650,"dirc":"Offer"},{"req":"Turm Level 4 + Zugang zum Deku-Wald","price":11650,"dirc":"Offer"},{"req":"Turm Level 5 + Zugang zum Feuchtgebiet","price":29650,"dirc":"Offer"},{"req":"Turm Level 6 + Zugang zum Drumpf-Sumpf","price":56650,"dirc":"Offer"},{"req":"Turm Level 7 + Zugang zum Frost-Schneefeld","price":110650,"dirc":"Offer"},{"req":"Turm Level 8 + Zugang zum Todesberg","price":191650,"dirc":"Offer"},{"req":"Turm Level 9 + Zugang zum Elfengarten","price":313150,"dirc":"Offer"},{"req":"Turm Level 10 + Zugang zur Allerletzten Ruine","price":495400,"dirc":"Offer"}]},"Hamakko-Küste":{"Duke":[{"req":"Die Brücke zwischen der Nahebene und der Hamakko-Küste reparieren","price":99,"dirc":"Offer"},{"req":"Bridge repair refund","price":9999,"dirc":"Ask"}],"Judge":[{"req":"Bridge repair refund","price":22222,"dirc":"Ask"}],"Duko":[{"req":"Bridge repair refund","price":55555,"dirc":"Ask"}]},"Schatz-Kap":{"Duke":[{"req":"Die Brücke zwischen der Hamakko-Küste und dem Schatz-Kap reparieren","price":199,"dirc":"Offer"}],"Salona":[{"req":"Rezept 9 kaufen","price":1200,"dirc":"Offer","misc":"Treasure Puree (Local Recipe)"}],"Tor zum Piraten-Versteck":[{"req":"Zugang zum Piraten-Versteck","price":500,"dirc":"Offer"}],"Pirat beim Boot":[{"req":"Explain boat mechanics","price":30,"dirc":"Offer"}],"Pirate in dormitory":[{"req":"Nothing","price":20,"dirc":"Offer"}],"Journalist":[{"req":"Belohnung: giving him Simple Juice","price":800,"dirc":"Ask"}]},"Lon-Lon-Savanne":{"Duke":[{"req":"Schaufel kaufen","price":750,"dirc":"Offer"},{"req":"Die Brücke zwischen dem Schatz-Kap und der Lon-Lon-Savanne reparieren","price":299,"dirc":"Offer"}]},"Deku-Wald":{"Junglo":[{"req":"Bridge the ravine","price":300,"dirc":"Offer"},{"req":"Weg durch das Wald-Labyrinth zeigen","price":721,"dirc":"Offer","misc":"Alternativ: ↑ ← ← ↑ ← ↑ → → ↓ → ↑ → ↑"},{"req":"‹‹Schlaflose Nächte››","price":850,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Rippling Muscles››","price":900,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Wald-Labyrinth››","price":1900,"dirc":"Offer","tag":"Dialog"},{"req":"Belohnung: escorting him home","price":2000,"dirc":"Ask"},{"req":"Belohnung: reuniting Aba and the Armourer","price":7800,"dirc":"Ask"}],"Duke":[{"req":"Die Brücke zwischen Lon-Lon-Savanne und Deku-Wald reparieren","price":699,"dirc":"Offer"}],"Großer Dekubaum":[{"req":"Deku-Tempel öffnen","price":1,"dirc":"Offer","misc":"Rubine werden in der grünen Kiste im Deku-Tempel gelagert"},{"req":"Belohnung: healing the Deku Sprout","price":6000,"dirc":"Ask"}],"Tor zum Deku-Tempel":[{"req":"Zugang zum Deku-Tempel","price":1500,"dirc":"Offer"}],"Mimikrikiste (Deku-Tempel)":[{"req":"Kiste öffnen","price":200,"dirc":"Offer","misc":"Gibt 3 Alte Münzen (Wert: 50 Rubine pro Stück)"}],"Journalist":[{"req":"Belohnung: giving him Sweet Juice","price":1600,"dirc":"Ask"}]},"Feuchtgebiet":{"Bienenkönigin":[{"req":"Ride to Insect Hive in Gooey Swamp","price":500,"dirc":"Offer"},{"req":"Belohnung: eliminating the fog","price":12000,"dirc":"Ask"}],"Salona":[{"req":"Leere Flasche kaufen","price":750,"dirc":"Offer"}]},"Drumpf-Sumpf":{"Explorer Secretary":[{"req":"Leere Flasche kaufen","price":1000,"dirc":"Offer"}],"Explorer Medic":[{"req":"Recipe #17: Tinglene","price":2000,"dirc":"Offer"}],"Expedition Member with Fan":[{"req":"Information on butterfly locations ('something good')","price":250,"dirc":"Offer"}],"Salona":[{"req":"‹‹UFO››","price":1000,"dirc":"Offer","tag":"Dialog"}],"Judge":[{"req":"Repair bridge to Golden Obelisk","price":1500,"dirc":"Offer"},{"req":"Repair Gooey Swamp-to-Steamy Marsh bridge","price":1222,"dirc":"Offer"}],"Insect Cavern Gate":[{"req":"Allow access to Insect Cavern","price":3000,"dirc":"Offer"}],"Teddy Todo":[{"req":"Share for helping in the Insect Cavern","price":1500,"dirc":"Offer"}],"Journalist":[{"req":"Belohnung: giving him Queen Juice","price":5000,"dirc":"Ask"}],"Naked Salona":[{"req":"Belohnung: returning Green Hood","price":8000,"dirc":"Ask"}]},"Frost-Schneefeld":{"Judge":[{"req":"Repair Icy Plain-to-Gooey Swamp bridge","price":2222,"dirc":"Offer"}],"Chiko's Grandmother":[{"req":"Revive the fallen Guard.","price":1000,"dirc":"Offer"}],"Old Gent":[{"req":"Belohnung: returning all five airship pieces","price":22000,"dirc":"Ask"}]},"Todesberg":{"Male Yamatami villager":[{"req":"To be greeted (before clearing Desma's Labyrinth)","price":50,"dirc":"Offer"}],"Sleeping Yamatami villager":[{"req":"Listen to snoring (before clearing Desma's Labyrinth)","price":50,"dirc":"Offer"}],"Yamatami elder":[{"req":"Talk about sacred flames (before clearing Desma's Labyrinth)","price":50,"dirc":"Offer"}],"Yamatami bard":[{"req":"Hear a song (before clearing Desma's Labyrinth)","price":200,"dirc":"Offer"}],"Female Yamatami villager":[{"req":"To access Rocky Orb (before clearing Desma's Labyrinth)","price":400,"dirc":"Offer"}],"Yamatami meat merchant":[{"req":"Purchase Minced Meat (before clearing Desma's Labyrinth)","price":150,"dirc":"Offer"},{"req":"Purchase Minced Meat (after clearing Desma's Labyrinth)","price":10,"dirc":"Offer"}],"Yamatami vegetable merchant":[{"req":"Purchase Crisp Tomato (before clearing Desma's Labyrinth)","price":150,"dirc":"Offer"},{"req":"Purchase Crisp Tomato (after clearing Desma's Labyrinth)","price":10,"dirc":"Offer"}],"Yamatami fish merchant":[{"req":"Purchase Love Carp (before clearing Desma's Labyrinth)","price":150,"dirc":"Offer"},{"req":"Purchase Love Carp (after clearing Desma's Labyrinth)","price":10,"dirc":"Offer"}],"Yamatami farmer":[{"req":"To access Super Sweetcorn vines","price":150,"dirc":"Offer"}],"Yamatami herder":[{"req":"To access rabbit pen","price":500,"dirc":"Offer"}],"Yamatami mother":[{"req":"Purchase Recipe 28: Desma Syrup","price":16000,"dirc":"Offer"}],"King":[{"req":"Heal the king","price":7500,"dirc":"Offer"},{"req":"Belohnung: defeating Fire Monster Dora Dora","price":30000,"dirc":"Ask"},{"req":"Feilschen um 1 Nidorian","price":170,"dirc":"Ask"}],"Desma's Labyrinth Gate":[{"req":"Allow access to Desma's Labyrinth","price":8000,"dirc":"Offer"}],"Journalist":[{"req":"Bring Emperor Juice","price":10000,"dirc":"Ask"}]},"Elfengarten":{"Duko":[{"req":"Repair Auros Ruins-to-Fairy Garden bridge","price":5555,"dirc":"Offer"}],"Große Fee":[{"req":"Belohnung: restoring her fountain","price":65000,"dirc":"Ask"},{"req":"Return the Make-Up Mirror","price":70000,"dirc":"Ask"}]},"Allerletzte Ruine":{"Duko":[{"req":"Repair Auros Ruins-to-Fairy Garden bridge","price":15555,"dirc":"Offer"}],"Oinker Lovers":[{"req":"Return the Oinker Tiara","price":70000,"dirc":"Ask"}]}}`;
+    let rawJ = `{"Nahebene":{"Torwächter":[{"req":"Durchgang zur Hafenstadt","price":5,"dirc":"Offer"},{"req":"‹‹Willkommen››","price":5,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Leere Flasche››","price":149,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Leere Flasche Erinnerung››","price":218,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Oinker Revolt››","price":80,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Leere Flasche Tag››","price":381,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Besondere leere Flasche››","price":754,"dirc":"Offer","tag":"Angebot"},{"req":"Belohnung: Die Frau des Torwächters heilen","price":960,"dirc":"Ask"},{"req":"Belohnung: Hilfe dabei, den Geist vom Frost-Schneefeld zu besiegen","price":20000,"dirc":"Ask"}],"Maître":[{"req":"Seine Küche für Tingle öffnen","price":10,"dirc":"Offer"},{"req":"‹‹Zutatenwissen››","price":10,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Potato Tips››","price":100,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Ocean soup››","price":3000,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Super Soup››","price":5000,"dirc":"Offer","tag":"Dialog"}],"Krämer":[{"req":"Seinen Laden für Tingle öffnen","price":15,"dirc":"Offer"},{"req":"‹‹Held Zottel››","price":20,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Verkaufe Flasche››","price":50,"dirc":"Offer","tag":"Angebot"},{"req":"‹‹Cape Legend››","price":50,"dirc":"Offer","tag":"Dialog"},{"req":"Feilschen um a Shoddy Knife","price":210,"dirc":"Ask"},{"req":"Feilschen um a Shoddy Shield","price":210,"dirc":"Ask"},{"req":"Feilschen um a Shoddy Lance","price":230,"dirc":"Ask"},{"req":"Feilschen um a Low-Budget Mace.","price":480,"dirc":"Ask"},{"req":"Feilschen um a Tough Shield","price":520,"dirc":"Ask"},{"req":"Feilschen um a Shoulder Spikes","price":2900,"dirc":"Ask"},{"req":"Feilschen um a Destructor Axe","price":3500,"dirc":"Ask"},{"req":"Feilschen um a Poker Lance","price":3500,"dirc":"Ask"},{"req":"Feilschen um a 10-Man Slicer","price":8800,"dirc":"Ask"},{"req":"Feilschen um a 999-Man Slicer","price":15000,"dirc":"Ask"},{"req":"Feilschen um das Zottel-Schwert","price":96000,"dirc":"Ask"}],"Juwelier":[{"req":"Seinen Laden für Tingle öffnen","price":27,"dirc":"Offer"},{"req":"‹‹White Sparkle››","price":25,"dirc":"Offer","tag":"Dialog"},{"req":"Belohnung: Seine Tochter finden","price":4000,"dirc":"Ask"}],"Bella":[{"req":"Ihr Café für Tingle öffnen","price":36,"dirc":"Offer"},{"req":"‹‹Full of Freshness››","price":35,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Simple Juice››","price":150,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Sweet Fragrance››","price":650,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Full of Elegance››","price":2000,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Last Emperor››","price":5000,"dirc":"Offer","tag":"Dialog"}],"Chikos Mama":[{"req":"‹‹Fairy››","price":15,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹One Love››","price":300,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Endless Love››","price":1500,"dirc":"Offer","tag":"Dialog"},{"req":"Mend the Worn-Out Rag","price":1750,"dirc":"Offer"},{"req":"‹‹Family History››","price":850,"dirc":"Offer","tag":"Dialog"},{"req":"Belohnung: Die Feenpuppe zurückbringen","price":60,"dirc":"Ask"},{"req":"Feilschen um a Hand-Sewn Robe","price":1750,"dirc":"Ask"},{"req":"Feilschen um a Magical Hat","price":9800,"dirc":"Ask"},{"req":"Belohnung: letting Chiko see a real fairy","price":32000,"dirc":"Ask"}],"Waitress":[{"req":"Den mittleren Kochtopf kaufen","price":500,"dirc":"Offer"},{"req":"Den großen Kochtopf kaufen","price":1500,"dirc":"Offer"}],"Tor zum Heldenschrein":[{"req":"Zugang zum Heldenschrein","price":50,"dirc":"Offer"}],"Mimikrikiste (Heldenschrein)":[{"req":"Kiste öffnen","price":50,"dirc":"Offer","misc":"Gibt 200 Rubine"}],"Speckted":[{"req":"Bis zum Ende des Heldenschreins als Leibwächter engagieren","price":20,"dirc":"Offer"},{"req":"Honorar für die Hilfe im Heldenschrein","price":100,"dirc":"Offer"}],"Journalist":[{"req":"‹‹Legende des Brunnens››","price":185,"dirc":"Offer","tag":"Dialog"}],"Springbrunnen":[{"req":"Belebe die Fee im Springbrunnen wieder","price":20000,"dirc":"Offer"}],"Old Gent":[{"req":"‹‹First Shake››","price":1501,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Second Shake››","price":1625,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Third Shake››","price":1751,"dirc":"Offer","tag":"Dialog"},{"req":"Belohnung: retrieving all three of Paul's belongings","price":14000,"dirc":"Ask"}],"Tingles Onkel":[{"req":"Die Credits kaufen","price":10000,"dirc":"Offer"}],"Westliche Quelle":[{"req":"Turm Level 1 + Zugang zur Hamakko-Küste","price":650,"dirc":"Offer"},{"req":"Turm Level 2 + Zugang zum Schatz-Kap","price":1650,"dirc":"Offer"},{"req":"Turm Level 3 + Zugang zur Lon-Lon-Savanne","price":5650,"dirc":"Offer"},{"req":"Turm Level 4 + Zugang zum Deku-Wald","price":11650,"dirc":"Offer"},{"req":"Turm Level 5 + Zugang zum Feuchtgebiet","price":29650,"dirc":"Offer"},{"req":"Turm Level 6 + Zugang zum Drumpf-Sumpf","price":56650,"dirc":"Offer"},{"req":"Turm Level 7 + Zugang zum Frost-Schneefeld","price":110650,"dirc":"Offer"},{"req":"Turm Level 8 + Zugang zum Todesberg","price":191650,"dirc":"Offer"},{"req":"Turm Level 9 + Zugang zum Elfengarten","price":313150,"dirc":"Offer"},{"req":"Turm Level 10 + Zugang zur Allerletzten Ruine","price":495400,"dirc":"Offer"}]},"Hamakko-Küste":{"Duke":[{"req":"Die Brücke zwischen der Nahebene und der Hamakko-Küste reparieren","price":99,"dirc":"Offer"},{"req":"Bridge repair refund","price":9999,"dirc":"Ask"}],"Judge":[{"req":"Bridge repair refund","price":22222,"dirc":"Ask"}],"Duko":[{"req":"Bridge repair refund","price":55555,"dirc":"Ask"}]},"Schatz-Kap":{"Duke":[{"req":"Die Brücke zwischen der Hamakko-Küste und dem Schatz-Kap reparieren","price":199,"dirc":"Offer"}],"Salona":[{"req":"Rezept 9 kaufen","price":1200,"dirc":"Offer","misc":"Treasure Puree (Local Recipe)"}],"Tor zum Piraten-Versteck":[{"req":"Zugang zum Piraten-Versteck","price":500,"dirc":"Offer"}],"Pirat beim Boot":[{"req":"Explain boat mechanics","price":30,"dirc":"Offer"}],"Pirate in dormitory":[{"req":"Nothing","price":20,"dirc":"Offer"}],"Journalist":[{"req":"Belohnung: giving him Simple Juice","price":800,"dirc":"Ask"}]},"Lon-Lon-Savanne":{"Duke":[{"req":"Schaufel kaufen","price":750,"dirc":"Offer"},{"req":"Die Brücke zwischen dem Schatz-Kap und der Lon-Lon-Savanne reparieren","price":299,"dirc":"Offer"}]},"Deku-Wald":{"Junglo":[{"req":"Bridge the ravine","price":300,"dirc":"Offer"},{"req":"Weg durch das Wald-Labyrinth zeigen","price":721,"dirc":"Offer","misc":"Alternativ: ↑ ← ← ↑ ← ↑ → → ↓ → ↑ → ↑"},{"req":"‹‹Schlaflose Nächte››","price":850,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Rippling Muscles››","price":900,"dirc":"Offer","tag":"Dialog"},{"req":"‹‹Wald-Labyrinth››","price":1900,"dirc":"Offer","tag":"Dialog"},{"req":"Belohnung: escorting him home","price":2000,"dirc":"Ask"},{"req":"Belohnung: reuniting Aba and the Armourer","price":7800,"dirc":"Ask"}],"Duke":[{"req":"Die Brücke zwischen Lon-Lon-Savanne und Deku-Wald reparieren","price":699,"dirc":"Offer"}],"Großer Dekubaum":[{"req":"Deku-Tempel öffnen","price":1,"dirc":"Offer","misc":"Rubine werden in der grünen Kiste im Deku-Tempel gelagert"},{"req":"Belohnung: healing the Deku Sprout","price":6000,"dirc":"Ask"}],"Tor zum Deku-Tempel":[{"req":"Zugang zum Deku-Tempel","price":1500,"dirc":"Offer"}],"Mimikrikiste (Deku-Tempel)":[{"req":"Kiste öffnen","price":200,"dirc":"Offer","misc":"Gibt 3 Alte Münzen (Wert: 50 Rubine pro Stück)"}],"Journalist":[{"req":"Belohnung: giving him Sweet Juice","price":1600,"dirc":"Ask"}]},"Feuchtgebiet":{"Bienenkönigin":[{"req":"Ride to Insect Hive in Gooey Swamp","price":500,"dirc":"Offer"},{"req":"Belohnung: eliminating the fog","price":12000,"dirc":"Ask"}],"Salona":[{"req":"Leere Flasche kaufen","price":750,"dirc":"Offer"}]},"Drumpf-Sumpf":{"Explorer Secretary":[{"req":"Leere Flasche kaufen","price":1000,"dirc":"Offer"}],"Explorer Medic":[{"req":"Recipe #17: Tinglene","price":2000,"dirc":"Offer"}],"Expedition Member with Fan":[{"req":"Information on butterfly locations ('something good')","price":250,"dirc":"Offer"}],"Salona":[{"req":"‹‹UFO››","price":1000,"dirc":"Offer","tag":"Dialog"}],"Judge":[{"req":"Repair bridge to Golden Obelisk","price":1500,"dirc":"Offer"},{"req":"Repair Gooey Swamp-to-Steamy Marsh bridge","price":1222,"dirc":"Offer"}],"Insect Cavern Gate":[{"req":"Allow access to Insect Cavern","price":3000,"dirc":"Offer"}],"Speckted":[{"req":"Honorar für die Hilfe in der Insect Cavern","price":1500,"dirc":"Offer"}],"Journalist":[{"req":"Belohnung: giving him Queen Juice","price":5000,"dirc":"Ask"}],"Naked Salona":[{"req":"Belohnung: returning Green Hood","price":8000,"dirc":"Ask"}]},"Frost-Schneefeld":{"Judge":[{"req":"Repair Icy Plain-to-Gooey Swamp bridge","price":2222,"dirc":"Offer"}],"Chiko's Grandmother":[{"req":"Revive the fallen Guard.","price":1000,"dirc":"Offer"}],"Old Gent":[{"req":"Belohnung: returning all five airship pieces","price":22000,"dirc":"Ask"}]},"Todesberg":{"Male Yamatami villager":[{"req":"To be greeted (before clearing Desma's Labyrinth)","price":50,"dirc":"Offer"}],"Sleeping Yamatami villager":[{"req":"Listen to snoring (before clearing Desma's Labyrinth)","price":50,"dirc":"Offer"}],"Yamatami elder":[{"req":"Talk about sacred flames (before clearing Desma's Labyrinth)","price":50,"dirc":"Offer"}],"Yamatami bard":[{"req":"Hear a song (before clearing Desma's Labyrinth)","price":200,"dirc":"Offer"}],"Female Yamatami villager":[{"req":"To access Rocky Orb (before clearing Desma's Labyrinth)","price":400,"dirc":"Offer"}],"Yamatami meat merchant":[{"req":"Purchase Minced Meat (before clearing Desma's Labyrinth)","price":150,"dirc":"Offer"},{"req":"Purchase Minced Meat (after clearing Desma's Labyrinth)","price":10,"dirc":"Offer"}],"Yamatami vegetable merchant":[{"req":"Purchase Crisp Tomato (before clearing Desma's Labyrinth)","price":150,"dirc":"Offer"},{"req":"Purchase Crisp Tomato (after clearing Desma's Labyrinth)","price":10,"dirc":"Offer"}],"Yamatami fish merchant":[{"req":"Purchase Love Carp (before clearing Desma's Labyrinth)","price":150,"dirc":"Offer"},{"req":"Purchase Love Carp (after clearing Desma's Labyrinth)","price":10,"dirc":"Offer"}],"Yamatami farmer":[{"req":"To access Super Sweetcorn vines","price":150,"dirc":"Offer"}],"Yamatami herder":[{"req":"To access rabbit pen","price":500,"dirc":"Offer"}],"Yamatami mother":[{"req":"Purchase Recipe 28: Desma Syrup","price":16000,"dirc":"Offer"}],"King":[{"req":"Heal the king","price":7500,"dirc":"Offer"},{"req":"Belohnung: defeating Fire Monster Dora Dora","price":30000,"dirc":"Ask"},{"req":"Feilschen um 1 Nidorian","price":170,"dirc":"Ask"}],"Desma's Labyrinth Gate":[{"req":"Allow access to Desma's Labyrinth","price":8000,"dirc":"Offer"}],"Journalist":[{"req":"Bring Emperor Juice","price":10000,"dirc":"Ask"}]},"Elfengarten":{"Duko":[{"req":"Repair Auros Ruins-to-Fairy Garden bridge","price":5555,"dirc":"Offer"}],"Große Fee":[{"req":"Belohnung: restoring her fountain","price":65000,"dirc":"Ask"},{"req":"Return the Make-Up Mirror","price":70000,"dirc":"Ask"}]},"Allerletzte Ruine":{"Duko":[{"req":"Repair Auros Ruins-to-Fairy Garden bridge","price":15555,"dirc":"Offer"}],"Oinker Lovers":[{"req":"Return the Oinker Tiara","price":70000,"dirc":"Ask"}]}}`;
 
     var jData = JSON.parse(rawJ);
     console.log(jData);
-    sel_loc="",sel_npc="",sel_req="";
+    sel_loc="",sel_npc="",sel_req="",sel_dirc="",sel_misc="";
+
+    let tmpNPCs = ["Armorer","Jeweller","Guard","Chiko's Mum","Duke","Salona","Pirate Hideaway Gate","Junglo"];
+
+    let tmpReqs = ['Talk: "Sleepless Nights"','Repair the bridge between Lon Lon Meadow and Deku Forest','Reward for giving him Sweet Juice',
+      'Ride to Insect Hive in Gooey Swamp','Information on butterfly locations ("something good")','Share for helping in the Insect Cavern']
 
     window.onkeydown = function(e){if(e.key=="Enter" && document.activeElement.id=="num"){
 
@@ -154,8 +174,10 @@
     }}
 
     function txFocF(){
-      document.getElementById('listFrm').style.display="flex";
+      document.getElementById('listFrm').style.display = "flex";
+      document.getElementById("rubyDir").innerHTML = "";
       document.getElementById("notif").innerHTML = "";
+      document.getElementById("splFrm").style.display = "none";
     }
 
     function txLocF(){
@@ -164,15 +186,12 @@
       document.getElementById("bar0").innerHTML = "";
       document.getElementById('num').value = "";
       document.getElementById('num').setAttribute("disabled",true);
-      document.getElementById("num").style['background-color'] = "rgb(255,255,255,0.1)";
 
       document.getElementById('txt_npc').value = "";
       document.getElementById('txt_npc').setAttribute("disabled",true);
-      document.getElementById("txt_npc").style['background-color'] = "rgb(255,255,255,0.1)";
 
       document.getElementById('txt_req').value = "";
       document.getElementById('txt_req').setAttribute("disabled",true);
-      document.getElementById("txt_req").style['background-color'] = "rgb(255,255,255,0.1)";
 
       document.getElementById('listBox').innerHTML = "<br>";
       document.getElementById('listBox').scrollTop = 0;
@@ -197,7 +216,7 @@
       document.getElementById('txt_loc').value = loc;
       sel_loc = loc;
       document.getElementById('txt_npc').removeAttribute("disabled");
-      document.getElementById('txt_npc').style["background-color"] = "#FFF";
+      if(document.getElementById('txt_npc').value=="") document.getElementById('txt_npc').focus();
       document.getElementById('listBox').innerHTML = "<br>";
       document.getElementById('listBox').scrollTop = 0;
     }
@@ -208,14 +227,12 @@
       document.getElementById("bar0").innerHTML = "";
       document.getElementById('num').value = "";
       document.getElementById('num').setAttribute("disabled",true);
-      document.getElementById("num").style['background-color'] = "rgb(255,255,255,0.1)";
 
       document.getElementById('listBox').innerHTML = "<br>";
       document.getElementById('listBox').scrollTop = 0;
 
       document.getElementById('txt_req').value = "";
       document.getElementById('txt_req').setAttribute("disabled",true);
-      document.getElementById("txt_req").style['background-color'] = "rgb(255,255,255,0.1)";
 
       if(txval.length>2){for(key in jData[sel_loc]){
 
@@ -235,7 +252,7 @@
       document.getElementById('txt_npc').value = npc;
       sel_npc = npc;
       document.getElementById('txt_req').removeAttribute("disabled");
-      document.getElementById('txt_req').style["background-color"] = "#FFF";
+      if(document.getElementById('txt_req').value=="") document.getElementById('txt_req').focus();
       document.getElementById('listBox').innerHTML = "<br>";
       document.getElementById('listBox').scrollTop = 0;
     }
@@ -246,7 +263,6 @@
       document.getElementById("bar0").innerHTML = "";
       document.getElementById('num').value = "";
       document.getElementById('num').setAttribute("disabled",true);
-      document.getElementById("num").style['background-color'] = "rgb(255,255,255,0.1)";
 
       document.getElementById('listBox').innerHTML = "<br>";
       document.getElementById('listBox').scrollTop = 0;
@@ -260,7 +276,7 @@
             let lsB = document.createElement("div");
             lsB.id = "req_"+sel_npc+"_"+key;
             lsB.classList.add("lsBox");
-            lsB.style['border-color'] = sel_task.dirc=="Offer" ? "#C00" : "#00C";
+            lsB.setAttribute("data-direction",sel_task.dirc);
             lsB.innerHTML = sel_task.req;
             document.getElementById('listBox').appendChild(lsB);
         }
@@ -269,11 +285,15 @@
       let evtApplX = document.getElementById('listBox').children; // Hotfix, weil sich Events in der Schleife nicht direkt zuweisen ließen
       for(var chl of evtApplX){ if(chl.id.indexOf("req_")>-1){  chl.onclick = function(e){prepGuessF(e.target.innerHTML);}  } }
     }
-    function prepGuessF(req){
+    function prepGuessF(req,dirc){
       document.getElementById('txt_req').value = req;
       sel_req = req;
       let sel_task = jData[sel_loc][sel_npc];
-      for(var i=0;i<sel_task.length;i++) if(req==sel_task[i].req) sol = sel_task[i].price;
+      for(var i=0;i<sel_task.length;i++) if(req==sel_task[i].req){
+        sol = sel_task[i].price;
+        sel_dirc = sel_task[i].dirc;
+        sel_misc = sel_task[i].misc;
+      }
       document.getElementById('listBox').innerHTML = "<br>";
       document.getElementById('listBox').scrollTop = 0;
       resetF();
@@ -282,7 +302,13 @@
     function resetF(){
       document.getElementById("listFrm").style.display = "none";
       document.getElementById("bar0").innerHTML = "";
-      document.getElementById("notif").innerHTML = "Starte mit [ENTER] einen Versuch!<br>Bisher 0 Versuche!";
+      document.getElementById("rubyDir").innerHTML = `${sel_dirc=="Offer" ? "Rubine anbieten:" : "Rubine fordern:"}<br>`;
+      document.getElementById("notif").innerHTML = "Bisher 0 Versuche";
+      console.log(sel_misc);
+      if(!(typeof sel_misc=="undefined")){
+        document.getElementById("spoil").innerHTML = sel_misc;
+        document.getElementById("splFrm").style.display = "block";
+      }
 
       let rup = document.createElement("div");
       rup.id = "mk0";
@@ -295,7 +321,6 @@
       markers = [sol];
       mkIx = 1;
       document.getElementById("num").removeAttribute("disabled");
-      document.getElementById("num").style['background-color'] = "#FFF";
     }
 
     function addMkF(val){
@@ -311,10 +336,11 @@
         mkV.classList.add("sldB");
         mkV.style['margin-left'] = `calc(0% - 5px)`;
         mkV.innerHTML = val;
+        mkV.title = val;
         mkV.value = val;
         document.getElementById("bar0").appendChild(mkV);
 
-        document.getElementById("notif").innerHTML = `Starte mit [ENTER] einen Versuch!<br>Bisher ${mkIx-1} Versuch(e)!`;
+        document.getElementById("notif").innerHTML = `Bisher ${mkIx-1} Versuch(e)!`;
         updLocF();
 
       }
