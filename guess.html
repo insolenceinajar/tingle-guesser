@@ -8,8 +8,6 @@
     html{ /* https://css-pattern.com/shuriken/*/
       --s: 30px;
       --c1: rgb(60,160,80,1);
-      --c2: rgb(40,150,70,1);
-
       --c: var(--c1) 25%,#0000 0;
 
       --_s:/calc(6*var(--s)) calc(6*var(--s));
@@ -27,7 +25,12 @@
         var(--s)         var(--s)         var(--g1),
         calc(4*var(--s)) calc(4*var(--s)) var(--g1),
         conic-gradient(at calc(100%/3) calc(200%/3),var(--c))
-        0 0/calc(3*var(--s)) calc(3*var(--s)) var(--c2);
+        0 0/calc(3*var(--s)) calc(3*var(--s)),
+        linear-gradient(180deg,
+          rgb(40,150,70,1) 0%,
+          rgb(30,130,50,1) 50%,
+          rgb(40,150,70,1) 100%
+        );
     }
     .pximg{
       image-rendering: pixelated;
@@ -55,6 +58,7 @@
     }
     body{
       font-family: "Lucida", cursive;
+      height:50vw;
       text-align:center;
       user-select:none;
       -webkit-user-select:none;
@@ -345,7 +349,7 @@
       document.getElementById("bar0").innerHTML = "";
       document.getElementById("rubyDir").innerHTML = `${sel_dirc=="Offer" ? "Rubine anbieten:" : "Rubine fordern:"}<br>`;
       document.getElementById("notif").innerHTML = "Bisher 0 Versuche";
-     
+      console.log(sel_misc);
       if(!(typeof sel_misc=="undefined")){
         document.getElementById("spoil").innerHTML = sel_misc;
         document.getElementById("splFrm").style.display = "block";
