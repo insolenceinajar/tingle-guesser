@@ -8,6 +8,8 @@
     html{ /* https://css-pattern.com/shuriken/*/
       --s: 30px;
       --c1: rgb(60,160,80,1);
+      --c2: rgb(40,150,70,1);
+
       --c: var(--c1) 25%,#0000 0;
 
       --_s:/calc(6*var(--s)) calc(6*var(--s));
@@ -25,12 +27,7 @@
         var(--s)         var(--s)         var(--g1),
         calc(4*var(--s)) calc(4*var(--s)) var(--g1),
         conic-gradient(at calc(100%/3) calc(200%/3),var(--c))
-        0 0/calc(3*var(--s)) calc(3*var(--s)),
-        linear-gradient(180deg,
-          rgb(40,150,70,1) 0%,
-          rgb(30,130,50,1) 50%,
-          rgb(40,150,70,1) 100%
-        );
+        0 0/calc(3*var(--s)) calc(3*var(--s)) var(--c2);
     }
     .pximg{
       image-rendering: pixelated;
@@ -58,7 +55,6 @@
     }
     body{
       font-family: "Lucida", cursive;
-      height:50vw;
       text-align:center;
       user-select:none;
       -webkit-user-select:none;
@@ -190,7 +186,6 @@
     <span id="notif" style="font-size:20pt"></span>
     <br>
     <div id="splFrm" style="font-size:14pt;display:none">Spoiler: <span id="spoil">spoilerspoilerspoiler</span></div>
-    <span style="font-family:Courier;font-size:8pt;cursor:pointer;color:#009" onclick="alert('Hier wird README noch großgeschrieben!')">README.md</span>
   </body>
   <script>
 
@@ -262,8 +257,37 @@
       sel_loc = loc;
       document.getElementById('txt_npc').removeAttribute("disabled");
       if(document.getElementById('txt_npc').value=="") document.getElementById('txt_npc').focus();
+      document.getElementById('listBox').innerHTML = "";
+      document.getElementById('listBox').scrollTop = 0;
+
+      let splB = document.createElement("div");
+      splB.id = "loc_npc_all"; splB.classList.add("lsBox"); splB.style['border'] = "2px solid #F00";
+      splB.innerHTML = "Alle NPCs zeigen (Vorsicht, Spoiler!)";
+      document.getElementById('listBox').appendChild(splB);
+      let evtApplX = document.getElementById('listBox').children; // Hotfix, weil sich Events in der Schleife nicht direkt zuweisen ließen
+      for(var chl of evtApplX){ if(chl.id.indexOf("loc_npc_all")>-1){  chl.onclick = function(e){allNPCsF();}  } }
+    }
+    function allNPCsF(){
+      document.getElementById("bar0").innerHTML = "";
+      document.getElementById('num').value = "";
+      document.getElementById('num').setAttribute("disabled",true);
+
       document.getElementById('listBox').innerHTML = "<br>";
       document.getElementById('listBox').scrollTop = 0;
+
+      document.getElementById('txt_req').value = "";
+      document.getElementById('txt_req').setAttribute("disabled",true);
+
+      for(key in jData[sel_loc]){
+          let lsB = document.createElement("div");
+          lsB.id = "npc_"+key;
+          lsB.classList.add("lsBox");
+          lsB.innerHTML = key;
+          document.getElementById('listBox').appendChild(lsB);
+      }
+      document.getElementById('listBox').innerHTML += "<br>";
+      let evtApplX = document.getElementById('listBox').children; // Hotfix, weil sich Events in der Schleife nicht direkt zuweisen ließen
+      for(var chl of evtApplX){ if(chl.id.indexOf("npc_")>-1){  chl.onclick = function(e){prepReqF(e.target.innerHTML);}  } }
     }
 
     function txNpcF(){
@@ -298,8 +322,38 @@
       sel_npc = npc;
       document.getElementById('txt_req').removeAttribute("disabled");
       if(document.getElementById('txt_req').value=="") document.getElementById('txt_req').focus();
-      document.getElementById('listBox').innerHTML = "<br>";
+      document.getElementById('listBox').innerHTML = "";
       document.getElementById('listBox').scrollTop = 0;
+
+      let splB = document.createElement("div");
+      splB.id = "loc_npc_all"; splB.classList.add("lsBox"); splB.style['border'] = "2px solid #F00";
+      splB.innerHTML = "Alle Themen zeigen (Vorsicht, Spoiler!)";
+      document.getElementById('listBox').appendChild(splB);
+      let evtApplX = document.getElementById('listBox').children; // Hotfix, weil sich Events in der Schleife nicht direkt zuweisen ließen
+      for(var chl of evtApplX){ if(chl.id.indexOf("loc_npc_all")>-1){  chl.onclick = function(e){allTopsF();}  } }
+    }
+    function allTopsF(){
+      document.getElementById("bar0").innerHTML = "";
+      document.getElementById('num').value = "";
+      document.getElementById('num').setAttribute("disabled",true);
+
+      document.getElementById('listBox').innerHTML = "";
+      document.getElementById('listBox').scrollTop = 0;
+
+      let npc_tasks = jData[sel_loc][sel_npc].length;
+      for(var key=0;key<npc_tasks;key++){
+
+        let sel_task = jData[sel_loc][sel_npc][key];
+        let lsB = document.createElement("div");
+        lsB.id = "req_"+sel_npc+"_"+key;
+        lsB.classList.add("lsBox");
+        lsB.setAttribute("data-direction",sel_task.dirc);
+        lsB.innerHTML = sel_task.req;
+        document.getElementById('listBox').appendChild(lsB);
+      }
+      document.getElementById('listBox').innerHTML += "<br>";
+      let evtApplX = document.getElementById('listBox').children; // Hotfix, weil sich Events in der Schleife nicht direkt zuweisen ließen
+      for(var chl of evtApplX){ if(chl.id.indexOf("req_")>-1){  chl.onclick = function(e){prepGuessF(e.target.innerHTML);}  } }
     }
 
     function txReqF(){
@@ -349,7 +403,7 @@
       document.getElementById("bar0").innerHTML = "";
       document.getElementById("rubyDir").innerHTML = `${sel_dirc=="Offer" ? "Rubine anbieten:" : "Rubine fordern:"}<br>`;
       document.getElementById("notif").innerHTML = "Bisher 0 Versuche";
-      
+
       if(!(typeof sel_misc=="undefined")){
         document.getElementById("spoil").innerHTML = sel_misc;
         document.getElementById("splFrm").style.display = "block";
